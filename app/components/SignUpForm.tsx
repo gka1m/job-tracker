@@ -69,10 +69,12 @@ export default function SignUpForm({ onSwitch }: SignUpFormProps) {
   return (
     <form onSubmit={handleSignUp} className="flex flex-col gap-4 w-full">
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-600">Full name</label>
+        <label className="text-sm font-medium text-gray-600">
+          Full name/Username
+        </label>
         <input
           type="text"
-          placeholder="John Doe"
+          placeholder="Name or Username"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
