@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/app/lib/supabase";
 import Navbar from "../components/Navbar";
+import StatsHeader from "../components/StatsHeader";
+import AppTable from "../components/AppTable";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -28,8 +30,14 @@ export default function DashboardPage() {
     <div>
       <Navbar />
       {/* <h1>Welcome back, {name} 👋</h1> */}
-      <h1 className="p-5 text-4xl">Welcome back 👋</h1>
-      <h3 className="px-5 text-xl">Your job applications at a glance</h3>
+      <main className="p-6 flex flex-col gap-6">
+        <h1 className="p-5 text-4xl font-semibold text-gray-900">
+          Welcome back 👋
+        </h1>
+        <h3 className="px-5 text-xl">Your applications at a glance</h3>
+        <StatsHeader />
+        <AppTable />
+      </main>
     </div>
   );
 }
