@@ -9,12 +9,12 @@ export default function Pagination({
   totalPages,
   onPageChange,
 }: PaginationProps) {
-  if (totalPages <= 1) return null;
+  const safeTotalPages = Math.max(1, totalPages);
 
-  const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+  const pages = Array.from({ length: safeTotalPages }, (_, i) => i + 1);
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-3 px-5">
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page === 1}
@@ -39,7 +39,7 @@ export default function Pagination({
 
       <button
         onClick={() => onPageChange(page + 1)}
-        disabled={page === totalPages}
+        disabled={page === safeTotalPages}
         className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
       >
         →

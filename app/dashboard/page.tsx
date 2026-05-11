@@ -6,6 +6,7 @@ import { supabase } from "@/app/lib/supabase";
 import Navbar from "../components/Navbar";
 import StatsHeader from "../components/StatsHeader";
 import AppTable from "../components/AppTable";
+import Pagination from "../components/Pagination";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -37,6 +38,7 @@ export default function DashboardPage() {
         <h3 className="px-5 text-xl">Your applications at a glance</h3>
         <StatsHeader />
         <AppTable />
+        <Pagination page={1} totalPages={1} onPageChange={() => {}} />
       </main>
     </div>
   );
