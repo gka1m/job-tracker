@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/app/lib/supabase";
+import { Home, UserRound } from "lucide-react";
 
 const Navbar = () => {
   const router = useRouter();
@@ -50,7 +51,12 @@ const Navbar = () => {
   return (
     <nav className="w-full px-6 py-4 bg-transparent flex items-center justify-between">
       {/* Left — app name */}
-      <span className="text-base font-semibold text-gray-900">Job Tracker</span>
+      <button
+        onClick={() => router.push("/dashboard")}
+        className="p-2 roudned-lg text-gray-900 hover:bg-gray-100 cursor-pointer"
+      >
+        <Home size={20} />
+      </button>
 
       {/* Right — actions */}
       <div className="flex items-center gap-3">
@@ -60,15 +66,7 @@ const Navbar = () => {
             onClick={() => setDropdownOpen((prev) => !prev)}
             className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-colors"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
-            </svg>
+            <UserRound size={18} />
           </button>
 
           {dropdownOpen && (

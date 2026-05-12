@@ -38,7 +38,9 @@ export default function DashboardPage() {
         <h3 className="px-5 text-xl">Your applications at a glance</h3>
         <StatsHeader />
         <AppTable />
-        <Pagination page={1} totalPages={1} onPageChange={() => {}} />
+        <div className="flex justify-center">
+          <Pagination page={1} totalPages={1} onPageChange={() => {}} />
+        </div>
       </main>
     </div>
   );
