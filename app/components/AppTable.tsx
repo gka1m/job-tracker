@@ -13,6 +13,11 @@ interface Job {
   notes?: string;
 }
 
+interface AppTableProps {
+  page: number;
+  setTotalPages: React.Dispatch<React.SetStateAction<number>>;
+}
+
 const STATUS_STYLES: Record<string, string> = {
   APPLIED: "bg-blue-50 text-blue-600 border-blue-100",
   INTERVIEW_ASSESSMENT: "bg-yellow-50 text-yellow-600 border-yellow-100",
@@ -35,7 +40,7 @@ const SOURCE_LABELS: Record<string, string> = {
   OTHERS: "Others",
 };
 
-const AppTable = () => {
+const AppTable = ({ page, setTotalPages }: AppTableProps) => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<number[]>([]);
@@ -50,8 +55,10 @@ const AppTable = () => {
   const [pendingDelete, setPendingDelete] = useState<number[]>([]);
   const [countdown, setCountdown] = useState(0);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [editingJob, setEditingJob] = useState<Job | null>(null);
 
   const fetchJobs = useCallback(async () => {
+    setLoading(true);
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (statusFilter) params.set("status", statusFilter);
@@ -60,12 +67,15 @@ const AppTable = () => {
       params.set("sortBy", sortBy);
       params.set("order", order);
     }
+    params.set("page", String(page)); // ← use page prop
+    params.set("limit", "10");
 
     const res = await fetch(`/api/jobs?${params.toString()}`);
     const data = await res.json();
-    setJobs(data);
+    setJobs(data.jobs ?? []);
+    setTotalPages(data.totalPages ?? 1); // ← tell parent totalPages
     setLoading(false);
-  }, [search, statusFilter, sourceFilter, sortBy, order]);
+  }, [search, statusFilter, sourceFilter, sortBy, order, page]); // ← page in deps
 
   useEffect(() => {
     fetchJobs();
@@ -101,9 +111,9 @@ const AppTable = () => {
   };
 
   // Delete with undo
-  const handleDelete = () => {
-    if (selected.length === 0) return;
-    setPendingDelete(selected);
+  const handleDelete = (idsToDelete: number[]) => {
+    if (idsToDelete.length === 0) return;
+    setPendingDelete(idsToDelete);
     setSelected([]);
     setCountdown(5);
 
@@ -121,10 +131,11 @@ const AppTable = () => {
       await fetch("/api/jobs/bulk-delete", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: selected }),
+        body: JSON.stringify({ ids: idsToDelete }),
       });
       setPendingDelete([]);
       fetchJobs();
+      window.dispatchEvent(new Event("jobs-updated")); // ← add this
     }, 5000);
 
     setUndoTimer(timer);
@@ -187,7 +198,7 @@ const AppTable = () => {
         <div className="ml-auto flex items-center gap-3">
           {selected.length > 0 && (
             <button
-              onClick={handleDelete}
+              onClick={() => handleDelete(selected)}
               className="px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-lg transition-colors cursor-pointer"
             >
               Delete {selected.length} selected
@@ -291,11 +302,27 @@ const AppTable = () => {
                     {SOURCE_LABELS[job.source] ?? job.source}
                   </td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`px-2.5 py-1 rounded-full text-xs font-medium border ${STATUS_STYLES[job.status]}`}
+                    <select
+                      value={job.status}
+                      onChange={async (e) => {
+                        const newStatus = e.target.value;
+                        await fetch(`/api/jobs/${job.id}`, {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ status: newStatus }),
+                        });
+                        fetchJobs();
+                        window.dispatchEvent(new Event("jobs-updated"));
+                      }}
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium border cursor-pointer focus:outline-none ${STATUS_STYLES[job.status]}`}
                     >
-                      {STATUS_LABELS[job.status] ?? job.status}
-                    </span>
+                      <option value="APPLIED">Applied</option>
+                      <option value="INTERVIEW_ASSESSMENT">
+                        Interview/Assessment
+                      </option>
+                      <option value="OFFER">Offer</option>
+                      <option value="REJECTED">Rejected</option>
+                    </select>
                   </td>
                   <td className="px-4 py-3 text-gray-500">
                     {formatDate(job.appliedAt)}
@@ -303,15 +330,14 @@ const AppTable = () => {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => {}} // hook up edit modal later
+                        onClick={() => setEditingJob(job)} // hook up edit modal later
                         className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => {
-                          setSelected([job.id]);
-                          handleDelete();
+                          handleDelete([job.id]);
                         }}
                         className="text-xs text-red-400 hover:text-red-600 cursor-pointer"
                       >
@@ -329,7 +355,21 @@ const AppTable = () => {
       {showAddModal && (
         <AddJobModal
           onClose={() => setShowAddModal(false)}
-          onSuccess={fetchJobs}
+          onSuccess={async () => {
+            await fetchJobs();
+            window.dispatchEvent(new Event("jobs-updated"));
+          }}
+        />
+      )}
+      {editingJob && (
+        <AddJobModal
+          job={editingJob}
+          onClose={() => setEditingJob(null)}
+          onSuccess={async () => {
+            await fetchJobs();
+            setEditingJob(null);
+            window.dispatchEvent(new Event("jobs-updated"));
+          }}
         />
       )}
     </div>

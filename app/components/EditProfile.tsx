@@ -14,16 +14,16 @@ const EditProfile = () => {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  //   useEffect(() => {
-  //     supabase.auth.getUser().then(({ data: { user } }) => {
-  //       if (user) {
-  //         setName(user.user_metadata?.name || "");
-  //         setEmail(user.email || "");
-  //         setNewEmail(user.email || "");
-  //         setLoading(false);
-  //       }
-  //     });
-  //   }, []);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user) {
+        setName(user.user_metadata?.name || "");
+        setEmail(user.email || "");
+        setNewEmail(user.email || "");
+        setLoading(false);
+      }
+    });
+  }, []);
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,7 +50,7 @@ const EditProfile = () => {
     setSaving(false);
   };
 
-  //   if (loading) return <p className="text-sm text-gray-400">Loading...</p>;
+  if (loading) return <p className="text-sm text-gray-400">Loading...</p>;
 
   return (
     <form onSubmit={handleSave} className="flex flex-col gap-5 max-w-md w-full">

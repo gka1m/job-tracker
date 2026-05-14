@@ -2,19 +2,38 @@
 
 import { useState } from "react";
 
+interface Job {
+  id: number;
+  company: string;
+  role: string;
+  source: string;
+  status: string;
+  appliedAt: string;
+  notes?: string;
+}
+
 interface AddJobModalProps {
+  job?: Job; // if passed, edit mode. if not, add mode
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export default function AddJobModal({ onClose, onSuccess }: AddJobModalProps) {
+export default function AddJobModal({
+  job,
+  onClose,
+  onSuccess,
+}: AddJobModalProps) {
+  const isEditing = !!job;
+
   const [form, setForm] = useState({
-    company: "",
-    role: "",
-    status: "APPLIED",
-    source: "OTHERS",
-    appliedAt: new Date().toISOString().split("T")[0],
-    notes: "",
+    company: job?.company || "",
+    role: job?.role || "",
+    status: job?.status || "APPLIED",
+    source: job?.source || "OTHERS",
+    appliedAt: job?.appliedAt
+      ? new Date(job.appliedAt).toISOString().split("T")[0]
+      : new Date().toISOString().split("T")[0],
+    notes: job?.notes || "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -32,14 +51,24 @@ export default function AddJobModal({ onClose, onSuccess }: AddJobModalProps) {
     setLoading(true);
     setError("");
 
-    const res = await fetch("/api/jobs", {
-      method: "POST",
+    const payload = {
+      ...form,
+      appliedAt: new Date(form.appliedAt).toISOString(),
+    };
+
+    const url = isEditing ? `/api/jobs/${job.id}` : "/api/jobs";
+    const method = isEditing ? "PATCH" : "POST";
+
+    const res = await fetch(url, {
+      method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify(payload),
     });
 
     if (!res.ok) {
-      setError("Failed to add application. Please try again.");
+      setError(
+        `Failed to ${isEditing ? "update" : "add"} application. Please try again.`,
+      );
       setLoading(false);
       return;
     }
@@ -60,7 +89,7 @@ export default function AddJobModal({ onClose, onSuccess }: AddJobModalProps) {
         {/* Header */}
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold text-gray-900">
-            Add application
+            {isEditing ? "Edit application" : "Add application"}
           </h2>
           <button
             onClick={onClose}
@@ -70,7 +99,6 @@ export default function AddJobModal({ onClose, onSuccess }: AddJobModalProps) {
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <label className="text-sm font-medium text-gray-600">Company</label>
@@ -183,7 +211,11 @@ export default function AddJobModal({ onClose, onSuccess }: AddJobModalProps) {
               disabled={loading}
               className="flex-1 py-2.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer"
             >
-              {loading ? "Adding..." : "Add application"}
+              {loading
+                ? "Saving..."
+                : isEditing
+                  ? "Save changes"
+                  : "Add application"}
             </button>
           </div>
         </form>

@@ -13,20 +13,44 @@ const StatsHeader = () => {
 
   useEffect(() => {
     const fetchStats = async () => {
-      const res = await fetch("/api/jobs");
-      const jobs = await res.json();
+      try {
+        setLoading(true);
 
-      const applied = jobs.filter((j: any) => j.status === "APPLIED").length;
-      const todo = jobs.filter(
-        (j: any) => j.status === "INTERVIEW_ASSESSMENT",
-      ).length;
-      const active = jobs.filter((j: any) => j.status !== "REJECTED").length;
+        const res = await fetch("/api/jobs?limit=1000");
 
-      setStats({ applied, todo, active });
-      setLoading(false);
+        if (!res.ok) {
+          throw new Error("Failed to fetch stats");
+        }
+
+        const data = await res.json();
+
+        const jobs = data.jobs ?? [];
+
+        const applied = jobs.filter((j: any) => j.status === "APPLIED").length;
+
+        const todo = jobs.filter(
+          (j: any) => j.status === "INTERVIEW_ASSESSMENT",
+        ).length;
+
+        const active = jobs.filter((j: any) => j.status !== "REJECTED").length;
+
+        setStats({ applied, todo, active });
+      } catch (err) {
+        console.error(err);
+
+        setStats({
+          applied: 0,
+          todo: 0,
+          active: 0,
+        });
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchStats();
+    window.addEventListener("jobs-updated", fetchStats);
+    return () => window.removeEventListener("jobs-updated", fetchStats);
   }, []);
 
   const cards = [
