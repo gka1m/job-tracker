@@ -17,9 +17,9 @@ const EditProfile = () => {
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
-        setName(user.user_metadata?.name || "");
+        // setName(user.user_metadata?.name || "");
         setEmail(user.email || "");
-        setNewEmail(user.email || "");
+        // setNewEmail(user.email || "");
         setLoading(false);
       }
     });
@@ -32,14 +32,14 @@ const EditProfile = () => {
     setError("");
 
     const updates: { data?: { name: string }; email?: string } = {};
-    updates.data = { name };
-    if (newEmail !== email) updates.email = newEmail;
+    if (name) updates.data = { name };
+    if (newEmail && newEmail !== email) updates.email = newEmail;
 
     const { error } = await supabase.auth.updateUser(updates);
 
     if (error) {
       setError(error.message);
-    } else if (newEmail !== email) {
+    } else if (newEmail && newEmail !== email) {
       setMessage(
         "Profile updated. Check your new email inbox for a confirmation link.",
       );
@@ -55,28 +55,27 @@ const EditProfile = () => {
   return (
     <form onSubmit={handleSave} className="flex flex-col gap-5 max-w-md w-full">
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-600">Full name</label>
+        <label className="text-sm font-medium text-[#AAB4C3]">New Name</label>
         <input
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Your full name"
+          placeholder="New Name/Username"
           required
           className="px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-600">Email</label>
+        <label className="text-sm font-medium text-[#AAB4C3]">New Email</label>
         <input
           type="email"
           value={newEmail}
           onChange={(e) => setNewEmail(e.target.value)}
           placeholder="your@email.com"
-          required
           className="px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        {newEmail !== email && (
+        {newEmail && newEmail !== email && (
           <p className="text-xs text-yellow-600">
             A confirmation link will be sent to this email before the change
             takes effect.

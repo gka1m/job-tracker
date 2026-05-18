@@ -24,10 +24,10 @@ export default function LoginPage() {
           gap: "16px",
         }}
       >
-        <h1>Job Tracker</h1>
-        <p>
+        <h1 className="text-[#F5F7FA] text-3xl">Job Tracker</h1>
+        <p className="text-[#F5F7FA]">
           {mode === "signin"
-            ? "Sign in to your account"
+            ? "Sign in to your account for a productive job hunt"
             : "Create your account"}
         </p>
 
