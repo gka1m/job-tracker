@@ -53,7 +53,7 @@ const Navbar = () => {
       {/* Left — app name */}
       <button
         onClick={() => router.push("/dashboard")}
-        className="p-2 roudned-lg text-gray-900 hover:bg-gray-100 cursor-pointer"
+        className="p-2 roudned-lg text-[#F5F7FA] hover:text-[#AAB4C3] cursor-pointer"
       >
         <Home size={20} />
       </button>
@@ -64,25 +64,25 @@ const Navbar = () => {
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen((prev) => !prev)}
-            className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-colors"
+            className="w-9 h-9 rounded-full bg-[#0032A5] text-[#F5F7FA] flex items-center justify-center cursor-pointer hover:bg-[#0E2A47] transition-colors"
           >
             <UserRound size={18} />
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl border border-gray-100 shadow-sm py-1 z-50">
-              <div className="px-4 py-2 border-b border-gray-100">
-                <p className="text-sm font-medium text-gray-900 truncate">
+            <div className="absolute right-0 mt-2 w-48 bg-[#F5F7FA] rounded-xl border border-[#F5F7FA] shadow-sm py-1 z-50">
+              <div className="px-4 py-2 border-b border-[#F5F7FA]">
+                <p className="text-sm font-medium text-black truncate">
                   {name}
                 </p>
-                <p className="text-xs text-gray-400">Signed in</p>
+                <p className="text-xs text-[#AAB4C3]">Signed in</p>
               </div>
               <button
                 onClick={() => {
                   router.push("/profile");
                   setDropdownOpen(false);
                 }}
-                className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
+                className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-[#AAB4C3] transition-colors cursor-pointer"
               >
                 Edit profile
               </button>

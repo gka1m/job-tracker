@@ -18,7 +18,7 @@ export default function Pagination({
       <button
         onClick={() => onPageChange(page - 1)}
         disabled={page === 1}
-        className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+        className="px-3 py-1.5 text-sm rounded-lg border border-[#AAB4C3] text-[#F5F7FA] hover:bg-[#AAB4C3] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
       >
         ←
       </button>
@@ -29,8 +29,8 @@ export default function Pagination({
           onClick={() => onPageChange(p)}
           className={`px-3 py-1.5 text-sm rounded-lg border transition-colors cursor-pointer ${
             p === page
-              ? "bg-blue-600 text-white border-blue-600"
-              : "border-gray-200 text-gray-500 hover:bg-gray-50"
+              ? "bg-[#007C91] text-[#F5F7FA] border-[#007C91]"
+              : "border-[#AAB4C3] text-[#F5F7FA] hover:bg-[#AAB4C3]"
           }`}
         >
           {p}
@@ -40,7 +40,7 @@ export default function Pagination({
       <button
         onClick={() => onPageChange(page + 1)}
         disabled={page === safeTotalPages}
-        className="px-3 py-1.5 text-sm rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
+        className="px-3 py-1.5 text-sm rounded-lg border border-[#AAB4C3] text-[#F5F7FA] hover:bg-[#AAB4C3] disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer transition-colors"
       >
         →
       </button>

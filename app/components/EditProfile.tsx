@@ -62,7 +62,7 @@ const EditProfile = () => {
           onChange={(e) => setName(e.target.value)}
           placeholder="New Name/Username"
           required
-          className="px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#0032A5]"
         />
       </div>
 
@@ -99,14 +99,14 @@ const EditProfile = () => {
         <button
           type="submit"
           disabled={saving}
-          className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer"
+          className="flex-1 py-2.5 bg-[#007C91] hover:bg-[#0E2A47] disabled:opacity-50 text-[#F5F7FA] text-sm font-medium rounded-lg transition-colors cursor-pointer"
         >
           {saving ? "Saving..." : "Save changes"}
         </button>
         <button
           type="button"
           onClick={() => router.push("/dashboard")}
-          className="flex-1 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
+          className="flex-1 py-2.5 rounded-lg border border-[#AAB4C3] text-sm text-[#F5F7FA] hover:bg-red-600 transition-colors cursor-pointer"
         >
           Cancel
         </button>
