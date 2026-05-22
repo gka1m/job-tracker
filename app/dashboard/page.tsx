@@ -34,7 +34,7 @@ export default function DashboardPage() {
       <Navbar />
       <main className="p-6 flex flex-col gap-6">
         <h1 className="px-5 text-4xl">Welcome back, {name}</h1>
-        <h3 className="px-5 text-xl">Your applications at a glance</h3>
+        <h3 className="px-5 text-xl">Applications Overview</h3>
         <StatsHeader />
         <AppTable page={page} setTotalPages={setTotalPages} />
 

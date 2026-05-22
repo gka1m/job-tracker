@@ -1,7 +1,7 @@
 "use client";
-
 import { useEffect, useState, useCallback } from "react";
 import AddJobModal from "./AddJobModal";
+import { Pencil, Trash2 } from "lucide-react";
 
 interface Job {
   id: number;
@@ -25,12 +25,12 @@ const STATUS_STYLES: Record<string, string> = {
   REJECTED: "bg-red-50 text-red-600 border-red-100",
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  APPLIED: "Applied",
-  INTERVIEW_ASSESSMENT: "Interview",
-  OFFER: "Offer",
-  REJECTED: "Rejected",
-};
+// const STATUS_LABELS: Record<string, string> = {
+//   APPLIED: "Applied",
+//   INTERVIEW_ASSESSMENT: "Interview",
+//   OFFER: "Offer",
+//   REJECTED: "Rejected",
+// };
 
 const SOURCE_LABELS: Record<string, string> = {
   LINKEDIN: "LinkedIn",
@@ -167,7 +167,7 @@ const AppTable = ({ page, setTotalPages }: AppTableProps) => {
           placeholder="Search company or role..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="px-4 py-2 text-sm rounded-lg border border-gray-200 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 w-64"
+          className="px-4 py-2 text-sm rounded-lg border border-gray-200 bg-[#F5F7FA] placeholder-[#AAB4C3] text-black focus:outline-none focus:ring-2 focus:ring-[#0E2A47] w-64"
         />
 
         <select
@@ -206,7 +206,7 @@ const AppTable = ({ page, setTotalPages }: AppTableProps) => {
           )}
           <button
             onClick={() => setShowAddModal(true)} // hook up add modal later
-            className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors cursor-pointer"
+            className="px-4 py-2 text-sm font-medium text-white bg-[#007C91] hover:bg-[#0E2A47] rounded-lg transition-colors cursor-pointer"
           >
             + Add application
           </button>
@@ -230,7 +230,7 @@ const AppTable = ({ page, setTotalPages }: AppTableProps) => {
       )}
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+      <div className="bg-white/10 rounded-xl border border-white/30 overflow-hidden">
         {loading ? (
           <div className="flex items-center justify-center py-16 text-sm text-gray-400">
             Loading...
@@ -241,9 +241,9 @@ const AppTable = ({ page, setTotalPages }: AppTableProps) => {
           </div>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-100">
+            <thead className="bg-white/20 border-b border-white/20">
               <tr>
-                <th className="px-4 py-3 w-10">
+                <th className="px-4 py-3 text-left font-medium text-[#F5F7FA] cursor-pointer hover:text-white">
                   <input
                     type="checkbox"
                     checked={selected.length === jobs.length && jobs.length > 0}
@@ -252,30 +252,30 @@ const AppTable = ({ page, setTotalPages }: AppTableProps) => {
                   />
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-medium text-gray-500 cursor-pointer hover:text-gray-800"
+                  className="px-4 py-3 text-left font-medium text-[#F5F7FA] cursor-pointer hover:text-gray-800"
                   onClick={() => handleSort("company")}
                 >
                   Company <SortIcon field="company" />
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-medium text-gray-500 cursor-pointer hover:text-gray-800"
+                  className="px-4 py-3 text-left font-medium text-[#F5F7FA] cursor-pointer hover:text-gray-800"
                   onClick={() => handleSort("role")}
                 >
                   Role <SortIcon field="role" />
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">
+                <th className="px-4 py-3 text-left font-medium text-[#F5F7FA]">
                   Source
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">
+                <th className="px-4 py-3 text-left font-medium text-[#F5F7FA]">
                   Status
                 </th>
                 <th
-                  className="px-4 py-3 text-left font-medium text-gray-500 cursor-pointer hover:text-gray-800"
+                  className="px-4 py-3 text-left font-medium text-[#F5F7FA] cursor-pointer hover:text-gray-800"
                   onClick={() => handleSort("appliedAt")}
                 >
                   Date <SortIcon field="appliedAt" />
                 </th>
-                <th className="px-4 py-3 text-left font-medium text-gray-500">
+                <th className="px-4 py-3 text-left font-medium text-[#F5F7FA]">
                   Actions
                 </th>
               </tr>
@@ -284,7 +284,7 @@ const AppTable = ({ page, setTotalPages }: AppTableProps) => {
               {visibleJobs.map((job) => (
                 <tr
                   key={job.id}
-                  className={`hover:bg-gray-50 transition-colors ${selected.includes(job.id) ? "bg-blue-50" : ""}`}
+                  className={`group border-b border-white/20 hover:bg-white/20 transition-colors ${selected.includes(job.id) ? "bg-white/20" : ""}`}
                 >
                   <td className="px-4 py-3">
                     <input
@@ -294,11 +294,11 @@ const AppTable = ({ page, setTotalPages }: AppTableProps) => {
                       className="rounded cursor-pointer"
                     />
                   </td>
-                  <td className="px-4 py-3 font-medium text-gray-900">
+                  <td className="px-4 py-3 font-medium text-[#F5F7FA]">
                     {job.company}
                   </td>
-                  <td className="px-4 py-3 text-gray-600">{job.role}</td>
-                  <td className="px-4 py-3 text-gray-500">
+                  <td className="px-4 py-3 text-[#F5F7FA]">{job.role}</td>
+                  <td className="px-4 py-3 text-[#F5F7FA]">
                     {SOURCE_LABELS[job.source] ?? job.source}
                   </td>
                   <td className="px-4 py-3">
@@ -324,24 +324,22 @@ const AppTable = ({ page, setTotalPages }: AppTableProps) => {
                       <option value="REJECTED">Rejected</option>
                     </select>
                   </td>
-                  <td className="px-4 py-3 text-gray-500">
+                  <td className="px-4 py-3 text-[#AAB4C3]">
                     {formatDate(job.appliedAt)}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => setEditingJob(job)} // hook up edit modal later
-                        className="text-xs text-blue-500 hover:text-blue-700 cursor-pointer"
+                        onClick={() => setEditingJob(job)}
+                        className="p-1.5 rounded-lg text-[#007C91] hover:text-[#0E2A47] hover:bg-[#AAB4C3] transition-colors cursor-pointer"
                       >
-                        Edit
+                        <Pencil size={14} />
                       </button>
                       <button
-                        onClick={() => {
-                          handleDelete([job.id]);
-                        }}
-                        className="text-xs text-red-400 hover:text-red-600 cursor-pointer"
+                        onClick={() => handleDelete([job.id])}
+                        className="p-1.5 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                       >
-                        Delete
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </td>
