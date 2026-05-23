@@ -306,12 +306,22 @@ const AppTable = ({ page, setTotalPages }: AppTableProps) => {
                       value={job.status}
                       onChange={async (e) => {
                         const newStatus = e.target.value;
+
+                        // Update UI instantly without waiting for API
+                        setJobs((prev) =>
+                          prev.map((j) =>
+                            j.id === job.id ? { ...j, status: newStatus } : j,
+                          ),
+                        );
+
+                        // Sync with API in background
                         await fetch(`/api/jobs/${job.id}`, {
                           method: "PATCH",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({ status: newStatus }),
                         });
-                        fetchJobs();
+
+                        // Only update stats header, not the table
                         window.dispatchEvent(new Event("jobs-updated"));
                       }}
                       className={`px-2.5 py-1 rounded-full text-xs font-medium border cursor-pointer focus:outline-none ${STATUS_STYLES[job.status]}`}
