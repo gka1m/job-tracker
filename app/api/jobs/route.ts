@@ -1,9 +1,19 @@
-
 import { prisma } from "@/app/lib/prisma";
+import { supabase } from "@/app/lib/supabase";
 import { NextResponse } from "next/server";
 
 // GET all with search/filter/sort/pagination
 export async function GET(req: Request) {
+  const authHeader = req.headers.get("Authorization");
+  const token = authHeader?.replace("Bearer ", "");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser(token!);
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
   try {
     const { searchParams } = new URL(req.url);
 
@@ -40,6 +50,7 @@ export async function GET(req: Request) {
 
     const where = {
       AND: [
+        { userId: user.id },
         search
           ? {
               OR: [
@@ -118,13 +129,47 @@ export async function GET(req: Request) {
 }
 
 // POST for new job application
+// export async function POST(req: Request) {
+//   try {
+//     const authHeader = req.headers.get("Authorization");
+//     const token = authHeader?.replace("Bearer ", "");
+
+//     const {
+//       data: { user },
+//     } = await supabase.auth.getUser(token!);
+
+//     if (!user) {
+//       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+//     }
+//     const body = await req.json();
+//     const job = await prisma.jobs.create({ data: body });
+//     return NextResponse.json(job, { status: 201 });
+//   } catch (error) {
+//     console.error(error);
+//     return NextResponse.json(
+//       { error: "Failed to create job" },
+//       { status: 500 },
+//     );
+//   }
+// }
 export async function POST(req: Request) {
-  try {
-    const body = await req.json()
-    const job = await prisma.jobs.create({ data: body })
-    return NextResponse.json(job, { status: 201 })
-  } catch (error) {
-    console.error(error)
-    return NextResponse.json({ error: 'Failed to create job' }, { status: 500 })
+  const authHeader = req.headers.get("Authorization");
+  const token = authHeader?.replace("Bearer ", "");
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser(token!);
+
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+
+  const body = await req.json();
+  const job = await prisma.jobs.create({
+    data: {
+      ...body,
+      userId: user.id, // ← attach user
+    },
+  });
+  return NextResponse.json(job, { status: 201 });
 }

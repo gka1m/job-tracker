@@ -1,60 +1,94 @@
-import { prisma } from '@/app/lib/prisma'
-import { NextResponse } from 'next/server'
+import { prisma } from "@/app/lib/prisma";
+import { supabase } from "@/app/lib/supabase";
+import { NextResponse } from "next/server";
 
 // GET one job (search)
 export async function GET(
   _: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params
+    const { id } = await params;
     const job = await prisma.jobs.findUnique({
-      where: { id: Number(id) }
-    })
-    if (!job) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-    return NextResponse.json(job)
+      where: { id: Number(id) },
+    });
+    if (!job) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    return NextResponse.json(job);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch job' }, { status: 500 })
+    return NextResponse.json({ error: "Failed to fetch job" }, { status: 500 });
   }
 }
 
 // editing of job fields
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  try {
-    const { id } = await params
-    const body = await req.json()
+  const authHeader = req.headers.get("Authorization");
 
-    const allowedFields = ['company', 'role', 'status','source', 'notes', 'date']
+  const token = authHeader?.replace("Bearer ", "");
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser(token!);
+
+  if (!user)
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  // const job = await prisma.jobs.findUnique({
+  //   where: { id: Number(params.id) },
+  // });
+  // if (!job || job.userId !== user.id) {
+  //   return NextResponse.json({ error: "Not found" }, { status: 404 });
+  // }
+  try {
+    const { id } = await params;
+    const body = await req.json();
+
+    const allowedFields = [
+      "company",
+      "role",
+      "status",
+      "source",
+      "notes",
+      "date",
+    ];
     const data = Object.fromEntries(
-      Object.entries(body).filter(([key]) => allowedFields.includes(key))
-    )
+      Object.entries(body).filter(([key]) => allowedFields.includes(key)),
+    );
 
     if (Object.keys(data).length === 0) {
-      return NextResponse.json({ error: 'No valid fields provided' }, { status: 400 })
+      return NextResponse.json(
+        { error: "No valid fields provided" },
+        { status: 400 },
+      );
     }
 
     const job = await prisma.jobs.update({
       where: { id: Number(id) },
-      data
-    })
-    return NextResponse.json(job)
+      data,
+    });
+    return NextResponse.json(job);
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update job' }, { status: 500 })
+    return NextResponse.json(
+      { error: "Failed to update job" },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(
   _: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const { id } = await params
-    await prisma.jobs.delete({ where: { id: Number(id) } })
-    return new NextResponse(null, { status: 204 })
+    const { id } = await params;
+    await prisma.jobs.delete({ where: { id: Number(id) } });
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete job' }, { status: 500 })
+    return NextResponse.json(
+      { error: "Failed to delete job" },
+      { status: 500 },
+    );
   }
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 
 interface Job {
   id: number;
@@ -58,17 +59,25 @@ export default function AddJobModal({
     setLoading(true);
     setError("");
 
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    const token = session?.access_token;
+
     const payload = {
       ...form,
       appliedAt: new Date(form.appliedAt).toISOString(),
     };
 
-    const url = isEditing ? `/api/jobs/${job.id}` : "/api/jobs";
+    const url = isEditing ? `/api/jobs/${job!.id}` : "/api/jobs";
     const method = isEditing ? "PATCH" : "POST";
 
     const res = await fetch(url, {
       method,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify(payload),
     });
 
@@ -174,7 +183,7 @@ export default function AddJobModal({
               value={form.notes}
               onChange={handleChange}
               rows={3}
-              className="px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-sm placeholder-[#AAB4C3] focus:outline-none focus:ring-2 focus:ring-[#0E2A47]"
+              className="px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-50 text-sm text-black placeholder-[#AAB4C3] focus:outline-none focus:ring-2 focus:ring-[#0E2A47]"
             />
           </div>
 

@@ -2,6 +2,7 @@
 import { useEffect, useState, useCallback } from "react";
 import AddJobModal from "./AddJobModal";
 import { Pencil, Trash2 } from "lucide-react";
+import { supabase } from "../lib/supabase";
 
 interface Job {
   id: number;
@@ -58,6 +59,11 @@ const AppTable = ({ page, setTotalPages }: AppTableProps) => {
   const [editingJob, setEditingJob] = useState<Job | null>(null);
 
   const fetchJobs = useCallback(async () => {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    const token = session?.access_token;
+
     setLoading(true);
     const params = new URLSearchParams();
     if (search) params.set("search", search);
@@ -70,7 +76,11 @@ const AppTable = ({ page, setTotalPages }: AppTableProps) => {
     params.set("page", String(page)); // ← use page prop
     params.set("limit", "10");
 
-    const res = await fetch(`/api/jobs?${params.toString()}`);
+    const res = await fetch(`/api/jobs?${params.toString()}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     const data = await res.json();
     setJobs(data.jobs ?? []);
     setTotalPages(data.totalPages ?? 1); // ← tell parent totalPages
@@ -276,6 +286,9 @@ const AppTable = ({ page, setTotalPages }: AppTableProps) => {
                   Date <SortIcon field="appliedAt" />
                 </th>
                 <th className="px-4 py-3 text-left font-medium text-[#F5F7FA]">
+                  Remarks
+                </th>
+                <th className="px-4 py-3 text-left font-medium text-[#F5F7FA]">
                   Actions
                 </th>
               </tr>
@@ -307,21 +320,27 @@ const AppTable = ({ page, setTotalPages }: AppTableProps) => {
                       onChange={async (e) => {
                         const newStatus = e.target.value;
 
-                        // Update UI instantly without waiting for API
+                        // optimistic update
                         setJobs((prev) =>
                           prev.map((j) =>
                             j.id === job.id ? { ...j, status: newStatus } : j,
                           ),
                         );
 
-                        // Sync with API in background
+                        const {
+                          data: { session },
+                        } = await supabase.auth.getSession();
+                        const token = session?.access_token;
+
                         await fetch(`/api/jobs/${job.id}`, {
                           method: "PATCH",
-                          headers: { "Content-Type": "application/json" },
+                          headers: {
+                            "Content-Type": "application/json",
+                            Authorization: `Bearer ${token}`, // ← add this
+                          },
                           body: JSON.stringify({ status: newStatus }),
                         });
 
-                        // Only update stats header, not the table
                         window.dispatchEvent(new Event("jobs-updated"));
                       }}
                       className={`px-2.5 py-1 rounded-full text-xs font-medium border cursor-pointer focus:outline-none ${STATUS_STYLES[job.status]}`}
@@ -336,6 +355,9 @@ const AppTable = ({ page, setTotalPages }: AppTableProps) => {
                   </td>
                   <td className="px-4 py-3 text-[#AAB4C3]">
                     {formatDate(job.appliedAt)}
+                  </td>
+                  <td className="px-4 py-3 text-[#AAB4C3] max-w-xs truncate">
+                    {job.notes || "—"}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">

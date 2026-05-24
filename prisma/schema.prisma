@@ -15,6 +15,7 @@ datasource db {
 
 model Jobs {
   id          Int   @id @default(autoincrement())
+  userId      String
   company     String
   role        String
   status      Status   @default(APPLIED)

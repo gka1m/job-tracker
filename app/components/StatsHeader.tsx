@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { supabase } from "../lib/supabase";
 
 interface Stats {
   applied: number;
@@ -11,47 +12,44 @@ const StatsHeader = () => {
   const [stats, setStats] = useState<Stats>({ applied: 0, todo: 0, active: 0 });
   const [loading, setLoading] = useState(true);
 
+  const fetchStats = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      const res = await fetch("/api/jobs?limit=1000", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("Failed to fetch stats");
+
+      const data = await res.json();
+      const jobs = data.jobs ?? [];
+
+      const applied = jobs.filter((j: any) => j.status === "APPLIED").length;
+      const todo = jobs.filter(
+        (j: any) => j.status === "INTERVIEW_ASSESSMENT",
+      ).length;
+      const active = jobs.filter((j: any) => j.status !== "REJECTED").length;
+
+      setStats({ applied, todo, active });
+    } catch (err) {
+      console.error(err);
+      setStats({ applied: 0, todo: 0, active: 0 });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        setLoading(true);
-
-        const res = await fetch("/api/jobs?limit=1000");
-
-        if (!res.ok) {
-          throw new Error("Failed to fetch stats");
-        }
-
-        const data = await res.json();
-
-        const jobs = data.jobs ?? [];
-
-        const applied = jobs.filter((j: any) => j.status === "APPLIED").length;
-
-        const todo = jobs.filter(
-          (j: any) => j.status === "INTERVIEW_ASSESSMENT",
-        ).length;
-
-        const active = jobs.filter((j: any) => j.status !== "REJECTED").length;
-
-        setStats({ applied, todo, active });
-      } catch (err) {
-        console.error(err);
-
-        setStats({
-          applied: 0,
-          todo: 0,
-          active: 0,
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchStats();
     window.addEventListener("jobs-updated", fetchStats);
     return () => window.removeEventListener("jobs-updated", fetchStats);
-  }, []);
+  }, [fetchStats]);
 
   const cards = [
     {
